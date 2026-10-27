@@ -24,4 +24,4 @@ PLEASE NOTE THIS IS STILL A WORK IN PROGRESS ADVICE IS ALWAYS ACCEPTED THANK YOU
 
 ## License
 
-Free to use, but not to modify or redistribute. See [LICENSE](LICENSE).
+Free to use, to modify All i ask is you give some credit or dont up to you.
