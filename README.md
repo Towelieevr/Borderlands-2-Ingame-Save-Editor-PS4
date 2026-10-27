@@ -25,3 +25,4 @@ PLEASE NOTE THIS IS STILL A WORK IN PROGRESS ADVICE IS ALWAYS ACCEPTED THANK YOU
 ## License
 
 Free to use, to modify All i ask is you give some credit or dont up to you.
+IGNORE THE LICENSE FILE PLEASE IT WAS A DRAFT
