@@ -4,7 +4,7 @@ In-game save editor plugin for Borderlands 2 on jailbroken PS4s with GoldHEN, by
 
 > **Beta:** back up your saves before using it (Apollo Save Tool or the PS4's save backup). Please report problems on the [Issues](https://github.com/Towelieevr/Borderlands-2-Save-Editor/issues) page.
 
-**Game:** Borderlands 2 (Handsome Collection), **CUSA01401 v1.10** only.
+**Game:** Borderlands 2 (Handsome Collection), **CUSA01401 v1.10** PS$ FIRMWARE 13.02 test only.
 
 **Tabs:** Character, Item Codes (categorized code list), SDUs, Profile (golden keys, badass rank), Cheats.
 
