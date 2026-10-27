@@ -666,7 +666,7 @@ int bl2_prof_set(int which, int64_t v) {
 #define SPEED_FN     0x10D2030
 static uintptr_t k_engine, k_grenade, k_fn_cd_on, k_fn_cd_reset;
 static int32_t k_off_players = -1, k_off_actor = -1, k_off_pawn = -1, k_off_health = -1, k_off_shield = -1,
-               k_n_pool = -1, k_n_grenade = -1, k_off_weapon = -1, k_off_ammo = -1, k_off_reload = -1, k_n_ppawn = -1;
+               k_n_pool = -1, k_n_grenade = -1, k_off_weapon = -1, k_off_ammo = -1, k_off_reload = -1, k_off_clip = -1, k_n_ppawn = -1;
 static uint32_t k_frames;
 static bool k_ready;
 
@@ -686,6 +686,7 @@ static int cheats_init(void) {
         k_off_weapon = prop_offset(name_index("Pawn"), name_index("Weapon"));
     k_off_ammo = prop_offset(name_index("WillowWeapon"), name_index("AmmoPool"));
     k_off_reload = prop_offset(name_index("WillowWeapon"), name_index("ReloadCnt"));
+    k_off_clip = prop_offset(name_index("WillowWeapon"), name_index("ClipSize"));
     k_n_ppawn = name_index("WillowPlayerPawn");
     sdu_init();
     if (!k_engine || k_off_players < 0 || k_off_actor < 0 || k_off_pawn < 0) { k_engine = 0; return -1; }
@@ -733,7 +734,7 @@ void bl2_cheats_tick(int flags) {
     }
     uintptr_t wpn = k_off_weapon >= 0 ? *(uintptr_t*)(pawn + k_off_weapon) : 0;
     if (wpn && (flags & CHEAT_AMMO)) refill(pool_ref(wpn, k_off_ammo));
-    if (wpn && (flags & CHEAT_NORELOAD) && k_off_reload >= 0) *(int32_t*)(wpn + k_off_reload) = 0;
+    if (wpn && (flags & CHEAT_NORELOAD) && k_off_reload >= 0 && k_off_clip >= 0) *(int32_t*)(wpn + k_off_reload) = *(int32_t*)(wpn + k_off_clip);
     if ((flags & CHEAT_COOLDOWN) && k_fn_cd_on && k_fn_cd_reset) {
         uint8_t p[0x10]; memset(p, 0, sizeof(p));
         bl2_process_event(pc, k_fn_cd_on, p);

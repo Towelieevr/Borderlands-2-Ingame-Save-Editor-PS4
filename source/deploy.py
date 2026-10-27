@@ -56,6 +56,7 @@ def read(ftp, path):
 
 def put(ftp, local, remote):
     with open(local, "rb") as f: ftp.storbinary("STOR " + remote, f)
+    if remote.endswith(".prx"): ftp.sendcmd("SITE CHMOD 777 " + remote)
     want = local[:-4] + ".oelf" if local.endswith(".prx") else local
     got, exp = read(ftp, remote), open(want, "rb").read()
     if want != local: got, exp = got[:0x3A] + got[0x40:], exp[:0x3A] + exp[0x40:]
