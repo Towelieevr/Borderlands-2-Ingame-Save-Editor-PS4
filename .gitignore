@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+build/
+unused/
+ps4_ref/
+save backups/
+plugins.ini.backup*
+*_names.txt
+*_objects.txt
+*.key
+HANDOFF.md
