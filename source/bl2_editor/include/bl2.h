@@ -21,6 +21,7 @@ const char* bl2_find_prefix(const char* s);
 int       bl2_spawn_code(const char* code, int level);
 int       bl2_unlock_all_cosmetics(void);
 int       bl2_backpack_free(void);
+void      bl2_backpack_keep(void);
 
 int bl2_get_money(int64_t* out);          int bl2_set_money(int64_t v);
 int bl2_get_eridium(int64_t* out);        int bl2_set_eridium(int64_t v);

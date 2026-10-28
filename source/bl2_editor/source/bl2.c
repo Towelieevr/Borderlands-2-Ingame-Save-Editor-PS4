@@ -271,6 +271,11 @@ int bl2_backpack_free(void) {
     if (!im || codes_init() != 0 || c_off_slotmax < 0 || c_off_count < 0) return -1;
     return *(int32_t*)(im + c_off_slotmax) - *(int32_t*)(im + c_off_count);
 }
+static int32_t backpack_saved_off(void) {
+    static int32_t off = -2;
+    if (off == -2) off = prop_offset(name_index("WillowPlayerController"), name_index("MaxBackpackSlotsLoadedFromSavegame"));
+    return off;
+}
 
 #define DEF_GRADE 0x18
 #define DEF_STAGE 0x78
@@ -521,7 +526,10 @@ int bl2_sdu_set(int which, int64_t v) {
     if (v < 0) v = 0;
     uint8_t p[0x10]; memset(p, 0, sizeof(p));
     switch (which) {
-    case SDU_BACKPACK: *(int32_t*)(im + c_off_slotmax) = (int32_t)v; return 0;
+    case SDU_BACKPACK:
+        *(int32_t*)(im + c_off_slotmax) = (int32_t)v;
+        if (backpack_saved_off() >= 0 && g_pc) *(int32_t*)(g_pc + backpack_saved_off()) = (int32_t)v;
+        return 0;
     case SDU_BANK:
         *(int32_t*)(p + u_p_bank) = (int32_t)v;
         bl2_process_event(im, u_fn_bank, p);
@@ -679,7 +687,8 @@ int bl2_prof_set(int which, int64_t v) {
 #define SPEED_FN     0x10D2030
 static uintptr_t k_engine, k_grenade, k_fn_cd_on, k_fn_cd_reset;
 static int32_t k_off_players = -1, k_off_actor = -1, k_off_pawn = -1, k_off_health = -1, k_off_shield = -1,
-               k_n_pool = -1, k_n_grenade = -1, k_off_weapon = -1, k_off_ammo = -1, k_off_reload = -1, k_off_clip = -1, k_n_ppawn = -1;
+               k_n_pool = -1, k_n_grenade = -1, k_off_weapon = -1, k_off_ammo = -1, k_off_reload = -1, k_off_clip = -1, k_n_ppawn = -1,
+               k_off_invmgr = -1;
 static uint32_t k_frames;
 static bool k_ready;
 
@@ -700,6 +709,7 @@ static int cheats_init(void) {
     k_off_ammo = prop_offset(name_index("WillowWeapon"), name_index("AmmoPool"));
     k_off_reload = prop_offset(name_index("WillowWeapon"), name_index("ReloadCnt"));
     k_off_clip = prop_offset(name_index("WillowWeapon"), name_index("ClipSize"));
+        k_off_invmgr = prop_offset(name_index("Pawn"), name_index("InvManager"));
     k_n_ppawn = name_index("WillowPlayerPawn");
     sdu_init();
     if (!k_engine || k_off_players < 0 || k_off_actor < 0 || k_off_pawn < 0) { k_engine = 0; return -1; }
@@ -753,6 +763,17 @@ void bl2_cheats_tick(int flags) {
         bl2_process_event(pc, k_fn_cd_on, p);
         if (*(uint32_t*)p & 1) { memset(p, 0, sizeof(p)); bl2_process_event(pc, k_fn_cd_reset, p); }
     }
+}
+
+void bl2_backpack_keep(void) {
+    int32_t saved = backpack_saved_off();
+    if (cheats_init() != 0 || saved < 0 || c_off_slotmax < 0 || k_off_invmgr < 0) return;
+    uintptr_t pc = live_pc();
+    uintptr_t pawn = pc ? *(uintptr_t*)(pc + k_off_pawn) : 0;
+    if (!pawn || !obj_class(pawn) || obj_name(obj_class(pawn)) != k_n_ppawn) return;
+    uintptr_t im = *(uintptr_t*)(pawn + k_off_invmgr);
+    int32_t want = *(int32_t*)(pc + saved);
+    if (im && want > *(int32_t*)(im + c_off_slotmax) && want <= BACKPACK_LIMIT) *(int32_t*)(im + c_off_slotmax) = want;
 }
 
 uintptr_t bl2_speed_slot(void) {
