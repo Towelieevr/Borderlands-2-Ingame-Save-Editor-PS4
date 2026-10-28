@@ -11,6 +11,8 @@ uintptr_t bl2_find_function(const char* owner, const char* name);
 uintptr_t bl2_find_instance(const char* cls);
 int       bl2_fonts(uintptr_t* out, int max);
 const char* bl2_object_name(uintptr_t o);
+int32_t   bl2_prop_offset(const char* cls, const char* prop);
+uintptr_t bl2_find_path(const char* path);
 int32_t   bl2_param_offset(uintptr_t fn, const char* name);
 void      bl2_process_event(uintptr_t obj, uintptr_t fn, void* parms);
 int       bl2_player_level(void);
@@ -21,7 +23,9 @@ const char* bl2_find_prefix(const char* s);
 int       bl2_spawn_code(const char* code, int level);
 int       bl2_unlock_all_cosmetics(void);
 int       bl2_backpack_free(void);
+int       bl2_add_to_backpack(uintptr_t inv);
 void      bl2_backpack_keep(void);
+uintptr_t bl2_live_pc(void);
 
 int bl2_get_money(int64_t* out);          int bl2_set_money(int64_t v);
 int bl2_get_eridium(int64_t* out);        int bl2_set_eridium(int64_t v);

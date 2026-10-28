@@ -9,12 +9,15 @@
 #include "ui.h"
 #include "crypt.h"
 #include "style.h"
+#ifdef PERSONAL
+#include "randomizer.h"
+#endif
 
 
 attr_public const char* g_pluginName = "bl2_editor";
 attr_public const char* g_pluginDesc = "Borderlands 2 in-game save editor";
 attr_public const char* g_pluginAuth = "Toweliee";
-attr_public u32 g_pluginVersion = 0x00000490;
+attr_public u32 g_pluginVersion = 0x00000530;
 
 #define attr_entry __attribute__((force_align_arg_pointer))
 static const char* icon_uri(void) {
@@ -212,8 +215,14 @@ static int load_codes(void) {
     return n;
 }
 
+#ifdef PERSONAL
+enum { TAB_CHARACTER, TAB_SPAWNER, TAB_SDU, TAB_PROFILE, TAB_CHEATS, TAB_STYLE, TAB_RANDO, N_TABS };
+static const char* g_tab_names[N_TABS] = {"CHARACTER", "ITEM CODES", "SDUs", "PROFILE", "CHEATS", "STYLE", "RANDO"};
+static volatile int g_rando_sel = 0, g_rando_top = 0, g_rando_act = -1, g_rando_dir = 0;
+#else
 enum { TAB_CHARACTER, TAB_SPAWNER, TAB_SDU, TAB_PROFILE, TAB_CHEATS, TAB_STYLE, N_TABS };
 static const char* g_tab_names[N_TABS] = {"CHARACTER", "ITEM CODES", "SDUs", "PROFILE", "CHEATS", "STYLE"};
+#endif
 static volatile int g_style_sel = 0;
 
 static int64_t g_edit[N_ITEMS], g_sdu_edit[N_SDU_ROWS], g_prof_edit[N_PROF_ROWS], g_cheat_edit[N_CHEAT_ROWS];
@@ -328,6 +337,15 @@ static void draw_menu(void) {
     do_pending();
         bl2_cheats_tick(g_cheats);
         bl2_backpack_keep();
+#ifdef PERSONAL
+    if (g_rando_act >= 0) {
+        int r = g_rando_act, d = g_rando_dir;
+        const char* m = d ? rando_change(r, d) : rando_press(r);
+        g_rando_act = -1;
+        if (m) status(m);
+    }
+    rando_tick();
+#endif
         if (g_status_frames > 0) g_status_frames--;
     if (!g_open) return;
     style_tick();
@@ -335,7 +353,7 @@ static void draw_menu(void) {
     float sw = ui_screen_w(), sh = ui_screen_h();
     if (sw < 100 || sh < 100) return;
     float s = sh / 720.0f;
-    float w = 720 * s, row = 44 * s, head = 60 * s, tabs = 40 * s, foot = 74 * s, body = row * 8;
+    float w = (N_TABS > 6 ? 800 : 720) * s, row = 44 * s, head = 60 * s, tabs = 40 * s, foot = 74 * s, body = row * 8;
     float h = head + tabs + body + foot;
     float x = (sw - w) / 2, y = (sh - h) / 2;
 
@@ -344,7 +362,7 @@ static void draw_menu(void) {
     gradient(x, y, w, h, style_alpha());
     ui_rect(x, y, w, head, 0.0f, 0.0f, 0.0f, 0.35f);
     ui_color(255, 255, 255, 255);
-    ui_text(x + 20 * s, y + 12 * s, ob((char[23]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x85,0xb4,0x42,0x76,0x72,0x34,0xd4,0xe6,0x9a,0xa2,0x5e,0x0b,0x1c,0x49,0xbc,0x89,0xff,0xd5}, 22), 1.1f * s);
+    ui_text(x + 20 * s, y + 12 * s, ob((char[23]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x85,0xb4,0x42,0x76,0x72,0x34,0xd4,0xe6,0x9a,0xa2,0x5e,0x0b,0x1c,0x49,0xbd,0x89,0xf5,0xd5}, 22), 1.1f * s);
     ui_color(210, 240, 255, 255);
     ui_text(x + w - ui_text_width(ob((char[12]){0}, (const unsigned char[]){0x38,0x00,0xb8,0xe3,0xb9,0x82,0x71,0x5f,0x3b,0x14,0xf5}, 11), 0.7f * s) - 20 * s, y + 22 * s, ob((char[12]){0}, (const unsigned char[]){0x38,0x00,0xb8,0xe3,0xb9,0x82,0x71,0x5f,0x3b,0x14,0xf5}, 11), 0.7f * s);
 
@@ -371,6 +389,28 @@ static void draw_menu(void) {
         if (g_status_frames > 0) { ui_color(170, 255, 190, 255); ui_text(x + 20 * s, sfy + 28 * s, g_status, 0.8f * s); }
         return;
     }
+#ifdef PERSONAL
+    if (g_tab == TAB_RANDO) {
+        float ry = ty + tabs + 4 * s, sfy = y + h - foot + 10 * s;
+        int n = rando_rows(), vis = 8;
+        if (g_rando_sel < g_rando_top) g_rando_top = g_rando_sel;
+        if (g_rando_sel >= g_rando_top + vis) g_rando_top = g_rando_sel - vis + 1;
+        for (int k = 0; k < vis && g_rando_top + k < n; k++) {
+            int i = g_rando_top + k;
+            char rv[64];
+            rando_value(i, rv, sizeof(rv));
+            draw_row(x, ry + k * row, w, row, s, i == g_rando_sel, rando_label(i), rv, NULL);
+        }
+        ui_color(200, 255, 230, 255);
+        if (g_rando_top > 0) ui_text(x + w - 40 * s, ry - 18 * s, "^", 0.7f * s);
+        if (g_rando_top + vis < n) ui_text(x + w - 40 * s, ry + vis * row - 4 * s, "v", 0.7f * s);
+        ui_rect(x, y + h - foot, w, foot, 0.0f, 0.0f, 0.0f, 0.30f);
+        ui_color(220, 235, 240, 255);
+        ui_text(x + 20 * s, sfy, "L1/R1 tab   Up/Down select   Left/Right toggle   X run   O close", 0.66f * s);
+        if (g_status_frames > 0) { ui_color(170, 255, 190, 255); ui_text(x + 20 * s, sfy + 28 * s, g_status, 0.8f * s); }
+        return;
+    }
+#endif
 
     float ry0 = ty + tabs + 4 * s;
     char val[64], num[32], note[64];
@@ -517,6 +557,17 @@ static void handle_buttons(int32_t api, int32_t handle, const ScePadData* d) {
         else if ((pressed & SCE_PAD_BUTTON_CROSS) && g_style_sel == STYLE_RESET) { style_change(STYLE_RESET, 1); status("Menu style reset to defaults"); }
         return;
     }
+#ifdef PERSONAL
+    if (g_tab == TAB_RANDO) {
+        int n = rando_rows();
+        if (pressed & SCE_PAD_BUTTON_CIRCLE) { g_open = false; return; }
+        if (pressed & SCE_PAD_BUTTON_DOWN) g_rando_sel = (g_rando_sel + 1) % n;
+        else if (pressed & SCE_PAD_BUTTON_UP) g_rando_sel = (g_rando_sel + n - 1) % n;
+        else if (dir && g_rando_act < 0) { g_rando_dir = dir; g_rando_act = g_rando_sel; }
+        else if ((pressed & SCE_PAD_BUTTON_CROSS) && g_rando_act < 0) { g_rando_dir = 0; g_rando_act = g_rando_sel; }
+        return;
+    }
+#endif
     bool in_cat = g_tab == TAB_SPAWNER && g_cat >= 0 && g_cat < g_ncats;
     if (pressed & SCE_PAD_BUTTON_CIRCLE) { if (in_cat) g_cat = -1; else g_open = false; return; }
     Table* t = &g_tables[g_tab];
@@ -575,6 +626,9 @@ s32 attr_public attr_entry plugin_load(s32 argc, const char* argv[]) {
     if (g_hooked) return 0;
     bl2_set_base(info.base_address);
     style_init("/data/GoldHEN/bl2_editor_style.ini", bl2_fonts, bl2_object_name);
+#ifdef PERSONAL
+    rando_boot();
+#endif
     char module[256];
     snprintf(module, sizeof(module), "/%s/common/lib/%s", sceKernelGetFsSandboxRandomWord(), "libScePad.sprx");
     int h = 0; sys_dynlib_load_prx(module, &h);
@@ -594,7 +648,7 @@ s32 attr_public attr_entry plugin_load(s32 argc, const char* argv[]) {
     install_abs_jump(g_readHook, (uint64_t)scePadRead, (void*)&scePadRead_hook);
     install_abs_jump(g_readStateHook, (uint64_t)scePadReadState, (void*)&scePadReadState_hook);
     g_hooked = true;
-    NotifyStatic(ICON_URI, ob((char[34]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x85,0x94,0x62,0x56,0x72,0x34,0xf4,0xc6,0xba,0x82,0x7e,0x0b,0x1c,0x5d,0xa6,0x9e,0xf6,0xc5,0x46,0x5a,0x62,0x35,0xef,0xe8,0xdb,0xb1,0x95,0x7e,0x5f}, 33));
+    NotifyStatic(ICON_URI, ob((char[34]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x85,0x94,0x62,0x56,0x72,0x34,0xf4,0xc6,0xba,0x82,0x7e,0x0b,0x1c,0x5c,0xa6,0x94,0xf6,0xc5,0x46,0x5a,0x62,0x35,0xef,0xe8,0xdb,0xb1,0x95,0x7e,0x5f}, 33));
     return 0;
 }
 
@@ -604,6 +658,9 @@ s32 attr_public attr_entry plugin_unload(s32 argc, const char* argv[]) {
         Patcher_Restore_Patch(g_readHook); Patcher_Restore_Patch(g_readStateHook);
         Patcher_Restore_Patch(g_readExtPatch); Patcher_Restore_Patch(g_readStateExtPatch);
                 if (g_speedPatch) Patcher_Restore_Patch(g_speedPatch);
+#ifdef PERSONAL
+        rando_unhook();
+#endif
 
         g_hooked = false;
     }

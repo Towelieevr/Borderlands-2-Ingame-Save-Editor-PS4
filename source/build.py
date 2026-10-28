@@ -11,7 +11,7 @@ import ps4sdk
 
 LIBS = ["kernel", "SceLibcInternal", "ScePad", "SceSysmodule", "SceSystemService", "SceUserService"]
 
-def plugin(d):
+def plugin(d, personal=False):
     d = os.path.abspath(d); name = os.path.basename(d.rstrip("\\/"))
     out = os.path.join(d, "build"); os.makedirs(out, exist_ok=True)
     for o in glob.glob(os.path.join(out, "*.o")): os.remove(o)
@@ -21,15 +21,17 @@ def plugin(d):
     inc = ["-I", os.path.join(SDK, "include"), "-I", os.path.join(REPO, "common"), "-I", os.path.join(d, "include")]
     sdk_flags = ["-O2", "-std=c11", "-march=btver2", "-mtune=btver2", "-fvisibility=hidden", *inc]
     flags = ["-O2", "-Wno-c99-designator", "-fvisibility=hidden", "-D__FINAL__=1", *inc]
+    if personal: flags += ["-DPERSONAL=1", "-I", os.path.join(d, "personal")]
     objs = []
     def cc(src, f, tag=""):
         o = os.path.join(out, tag + os.path.basename(src) + ".o"); ps4sdk.compile(src, o, f); objs.append(o)
     for src in glob.glob(os.path.join(SDK, "source", "*.c")): cc(src, sdk_flags, "sdk_")
     cc(os.path.join(SDK, "crt", "crtprx.c"), ["-O2", "-ffreestanding", "-fno-builtin", *inc], "sdk_")
-    for src in glob.glob(os.path.join(REPO, "common", "*.c")) + glob.glob(os.path.join(d, "source", "*.c")): cc(src, flags)
-    elf = os.path.join(out, name + ".elf")
+    srcs = glob.glob(os.path.join(REPO, "common", "*.c")) + glob.glob(os.path.join(d, "source", "*.c"))
+    for src in srcs + (glob.glob(os.path.join(d, "personal", "*.c")) if personal else []): cc(src, flags)
+    elf = os.path.join(out, name + ("_personal" if personal else "") + ".elf")
     ps4sdk.link(objs, elf, LIBS)
-    prx = ps4sdk.prx(elf, os.path.join(out, name + ".prx"), name)
+    prx = ps4sdk.prx(elf, os.path.join(out, name + ("_personal" if personal else "") + ".prx"), name)
     print("built", prx, os.path.getsize(prx), "bytes")
 
 SEAL_MAGIC = struct.pack("<Q", 0x4c41455345324c42)
@@ -59,4 +61,4 @@ def seal(elf):
     return [tb, rb]
 
 if __name__ == "__main__":
-    {"plugin": lambda: plugin(sys.argv[2])}[sys.argv[1]]()
+    {"plugin": lambda: plugin(sys.argv[2], "--personal" in sys.argv)}[sys.argv[1]]()

@@ -1,13 +1,13 @@
 # Borderlands 2 Save Editor (PS4 / GoldHEN)
 
 An in-game save editor plugin for **Borderlands 2** on jailbroken PS4s running **GoldHEN**, by **Toweliee / CLAUDE AI**.
-Open it in game, edit your character, spawn items from codes, max out SDUs, turn on cheats and restyle the menu, all without leaving the game.
+Open it in game, edit your character, spawn items from codes, max out SDUs, turn on cheats, restyle the menu and play a loot randomizer, all without leaving the game.
 
 | | |
 |---|---|
 | **Game** | Borderlands 2 – The Handsome Collection, **CUSA01401 v1.10** |
 | **Tested on** | PS4 firmware **13.02** with GoldHEN |
-| **Latest version** | [v4.90](https://github.com/Towelieevr/Borderlands-2-Save-Editor-PS4/releases/latest) |
+| **Latest version** | [v5.30](https://github.com/Towelieevr/Borderlands-2-Save-Editor-PS4/releases/latest) |
 
 > Back up your saves before editing (Apollo Save Tool or the PS4's own save backup). Found a problem? Please report it on the [Issues](https://github.com/Towelieevr/Borderlands-2-Save-Editor-PS4/issues) page.
 
@@ -25,6 +25,7 @@ Open it in game, edit your character, spawn items from codes, max out SDUs, turn
   - [Profile](#profile)
   - [Cheats](#cheats)
   - [Style](#style)
+  - [Rando (Loot Randomizer)](#rando-loot-randomizer)
 - [Credits & license](#credits--license)
 
 ---
@@ -125,11 +126,35 @@ Load into gameplay. A pop-up tells you the editor is ready:
 - **Panel**, **accent** and **text colour** (15 colours or Classic), **panel opacity**, **font** (any font the game has loaded) and **text size**.
 - Your style is saved and kept between sessions. **Reset to defaults** brings back the classic look.
 
+### Rando (Loot Randomizer)
+
+A PS4 port of **[mopioid's Loot Randomizer](https://github.com/mopioid/Borderlands-Loot-Randomizer)** for the PC version of Borderlands 2, used with mopioid's permission. Unique enemies and missions each drop an item picked by your seed. The same seed gives the same items as the PC mod.
+
+- **Randomizer:** turn it on or off. The first time, it makes a new seed for you.
+- **Seed** / **New random seed:** shows your seed, or rolls a new one. Seeds work like PC seeds, so you can share them.
+- **Reload bl2_rando.ini:** loads a seed you typed into `/data/GoldHEN/bl2_rando.ini` (for example `seed=xxxxx-xxxxx-xxxxx`).
+- **Guaranteed drops (test):** every drop roll succeeds. This is for testing and isn't in the PC mod.
+- **Every enemy drops:** Off / 5% / 10% / 25% / 50% / 100%. Every enemy, bosses included, gets that chance to also drop a random item from the randomizer's pools. This isn't in the PC mod.
+- **Content options** (DLCs, mission lengths, enemy types and so on) apply to the next new seed.
+- Open the editor once after loading in to start the randomizer. Missions give their item straight to your backpack.
+
+Not ported yet: hints, "other" locations, a few non-Pawn enemies, and repeatable missions.
+
 ---
 
 ## Credits & license
 
 Made by **Toweliee / CLAUDE AI**.
+
+**Thanks to:**
+
+- **[mopioid](https://github.com/mopioid)** for the original **[Borderlands Loot Randomizer](https://github.com/mopioid/Borderlands-Loot-Randomizer)**. The RANDO tab's item and location tables are generated from Loot Randomizer's data, and its seed logic is rebuilt from it. It's used with mopioid's permission. If you enjoy the randomizer, check out the original and [tip mopioid](https://streamlabs.com/mopioid/tip), or join the [Loot Randomizer Discord](https://discord.gg/C37HvmvBbS).
+- **[GoldHEN](https://github.com/GoldHEN)** for GoldHEN, the [GoldHEN Plugins SDK](https://github.com/GoldHEN/GoldHEN_Plugins_SDK) (MIT) and the [GoldHEN Plugins Repository](https://github.com/GoldHEN/GoldHEN_Plugins_Repository) (GPL-3.0), whose `plugin_common` code is built into the plugin.
+- **[OSM](https://github.com/OSM-Made/PS4-Notify)** for the PS4 notification code used by `plugin_common`.
+- **Makoto Matsumoto and Takuji Nishimura** for the Mersenne Twister, and the **Python Software Foundation** for CPython's `random` module, which the seed engine reproduces so that seeds match the PC mod.
+- **Gibbed** for the Borderlands 2 save editor and its item code format, and **lootlemon.com**, **gamertweak.com**, **gameplay.tips** and **windowsreport.com** for the item codes in `bl2_codes.txt`.
+
+Full license texts are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 Free to use and to modify. All I ask is that you give some credit, or don't; it's up to you.
 *(The LICENSE file is an old draft; the terms above are the ones that apply.)*

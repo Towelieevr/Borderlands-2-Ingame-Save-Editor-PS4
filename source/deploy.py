@@ -8,7 +8,7 @@ TITLE = "CUSA01401"
 PRX_LINE = "/data/GoldHEN/plugins/bl2_editor.prx"
 XEMO_LINE = "/data/GoldHEN/plugins/XeMo.prx"
 FILES = [
-    (os.path.join(HERE, "bl2_editor", "build", "bl2_editor.prx"), PRX_LINE),
+    (os.path.join(HERE, "bl2_editor", "build", "bl2_editor_personal.prx" if "--personal" in sys.argv else "bl2_editor.prx"), PRX_LINE),
     (os.path.join(HERE, "assets", "bl2_editor_icon.png"), "/data/GoldHEN/bl2_editor_icon.png"),
     (os.path.join(HERE, "bl2_codes.txt"), "/data/GoldHEN/bl2_codes.txt"),
 ]
@@ -60,7 +60,7 @@ def put(ftp, local, remote):
     want = local[:-4] + ".oelf" if local.endswith(".prx") else local
     got, exp = read(ftp, remote), open(want, "rb").read()
     if want != local: got, exp = got[:0x3A] + got[0x40:], exp[:0x3A] + exp[0x40:]
-    if got != exp: sys.exit(f"upload check failed: {remote} read back {len(got)} bytes, doesn't match {os.path.basename(want)}")
+    if got != exp: sys.exit(f"upload check failed: {remote} read back {len(got)} bytes, doesn't match {os.path.basename(want)} (if Borderlands 2 is running, the console returns the loaded copy: close the game and deploy again)")
     print("uploaded", remote, os.path.getsize(local), "bytes (verified)")
 
 def write_ini(ftp, old, new):

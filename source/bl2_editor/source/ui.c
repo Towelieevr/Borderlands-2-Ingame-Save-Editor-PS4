@@ -18,9 +18,9 @@ typedef void (*ProcessEvent_t)(void* self, void* fn, void* parms);
 
 static ProcessEvent_t g_orig_pe;
 static void** g_hud_vtable;
-static uintptr_t g_fn_postrender, g_fn_drawhud, g_fn_setpos, g_fn_setcolor, g_fn_drawtext, g_fn_drawtile, g_fn_textsize;
+static uintptr_t g_fn_postrender, g_fn_setpos, g_fn_setcolor, g_fn_drawtext, g_fn_drawtile, g_fn_textsize;
 static uintptr_t g_font;
-static volatile uint32_t g_postrender_seen, g_drawhud_seen;
+static volatile uint32_t g_postrender_seen;
 static UiDraw g_draw_cb;
 
 typedef struct { uint16_t* data; int32_t count, max; } FString;

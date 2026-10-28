@@ -125,6 +125,37 @@ int bl2_fonts(uintptr_t* out, int max) {
     return n;
 }
 const char* bl2_object_name(uintptr_t o) { return o ? name_str(obj_name(o)) : ""; }
+int32_t bl2_prop_offset(const char* cls, const char* prop) { return prop_offset(name_index(cls), name_index(prop)); }
+uintptr_t bl2_find_path(const char* path) {
+    char part[8][80];
+    int np = 0, len = 0;
+    for (const char* p = path; np < 8; p++) {
+        if (*p == '.' || *p == ':' || !*p) {
+            part[np][len] = 0;
+            if (len) np++;
+            len = 0;
+            if (!*p) break;
+        } else if (len < 79) part[np][len++] = *p;
+    }
+    if (!np) return 0;
+    TArray* n = gnames();
+    int32_t nn = -1;
+    for (int32_t i = 0; i < n->count && nn < 0; i++) {
+        uintptr_t e = ((uintptr_t*)n->data)[i];
+        if (e && strcasecmp((const char*)(e + 0x10), part[np - 1]) == 0) nn = i;
+    }
+    if (nn < 0) return 0;
+    TArray* g = gobjects();
+    for (int32_t i = 0; i < g->count; i++) {
+        uintptr_t o = ((uintptr_t*)g->data)[i];
+        if (!o || obj_name(o) != nn) continue;
+        uintptr_t out = obj_outer(o);
+        int k = np - 2;
+        while (k >= 0 && out && strcasecmp(name_str(obj_name(out)), part[k]) == 0) { out = obj_outer(out); k--; }
+        if (k < 0) return o;
+    }
+    return 0;
+}
 int32_t bl2_param_offset(uintptr_t fn, const char* name) {
     int32_t nn = name_index(name);
     if (!fn || nn < 0) return -1;
@@ -270,6 +301,16 @@ int bl2_backpack_free(void) {
     uintptr_t im = inventory_manager();
     if (!im || codes_init() != 0 || c_off_slotmax < 0 || c_off_count < 0) return -1;
     return *(int32_t*)(im + c_off_slotmax) - *(int32_t*)(im + c_off_count);
+}
+
+int bl2_add_to_backpack(uintptr_t inv) {
+    uintptr_t im = inventory_manager();
+    if (!inv || !im || bl2_backpack_free() <= 0) return -1;
+    uint8_t ap[0x10];
+    memset(ap, 0, sizeof(ap));
+    *(uintptr_t*)(ap + s_p_add_inv) = inv;
+    bl2_process_event(im, s_fn_add, ap);
+    return 0;
 }
 static int32_t backpack_saved_off(void) {
     static int32_t off = -2;
@@ -721,6 +762,7 @@ static uintptr_t live_pc(void) {
     uintptr_t p = (lp->data && lp->count > 0) ? ((uintptr_t*)lp->data)[0] : 0;
     return p ? *(uintptr_t*)(p + k_off_actor) : 0;
 }
+uintptr_t bl2_live_pc(void) { return cheats_init() == 0 ? live_pc() : 0; }
 static uintptr_t pool_ref(uintptr_t obj, int32_t off) {
     return (obj && off >= 0) ? *(uintptr_t*)(obj + off + POOLREF_DATA) : 0;
 }
