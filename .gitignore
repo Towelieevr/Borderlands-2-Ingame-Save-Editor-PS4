@@ -9,3 +9,4 @@ plugins.ini.backup*
 *_objects.txt
 *.key
 HANDOFF.md
+personal/
