@@ -9,6 +9,8 @@ uintptr_t bl2_player_controller(void);
 uintptr_t bl2_find_object(const char* cls, const char* name);
 uintptr_t bl2_find_function(const char* owner, const char* name);
 uintptr_t bl2_find_instance(const char* cls);
+int       bl2_fonts(uintptr_t* out, int max);
+const char* bl2_object_name(uintptr_t o);
 int32_t   bl2_param_offset(uintptr_t fn, const char* name);
 void      bl2_process_event(uintptr_t obj, uintptr_t fn, void* parms);
 int       bl2_player_level(void);

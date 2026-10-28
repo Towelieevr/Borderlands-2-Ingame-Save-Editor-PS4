@@ -14,6 +14,7 @@
 #define POOL_OWNER 0x158
 #define CURRENCY_STRIDE 20
 #define CURRENCY_VALUE  0x0C
+#define BACKPACK_LIMIT 200
 enum { CUR_CREDITS = 0, CUR_ERIDIUM = 1 };
 
 typedef struct { uintptr_t data; int32_t count, max; } TArray;
@@ -112,6 +113,18 @@ uintptr_t bl2_find_instance(const char* cls) {
     }
     return 0;
 }
+int bl2_fonts(uintptr_t* out, int max) {
+    int32_t nc = name_index("Font");
+    if (nc < 0) return 0;
+    TArray* g = gobjects();
+    int n = 0;
+    for (int32_t i = 0; i < g->count && n < max; i++) {
+        uintptr_t o = ((uintptr_t*)g->data)[i];
+        if (o && obj_class(o) && obj_name(obj_class(o)) == nc) out[n++] = o;
+    }
+    return n;
+}
+const char* bl2_object_name(uintptr_t o) { return o ? name_str(obj_name(o)) : ""; }
 int32_t bl2_param_offset(uintptr_t fn, const char* name) {
     int32_t nn = name_index(name);
     if (!fn || nn < 0) return -1;
@@ -503,7 +516,7 @@ int bl2_sdu_set(int which, int64_t v) {
     if (sdu_init() != 0) return -1;
     uintptr_t im = inventory_manager();
     if (!im) return -1;
-    int mx = bl2_sdu_max(which);
+    int mx = which == SDU_BACKPACK ? BACKPACK_LIMIT : bl2_sdu_max(which);
     if (mx >= 0 && v > mx) v = mx;
     if (v < 0) v = 0;
     uint8_t p[0x10]; memset(p, 0, sizeof(p));

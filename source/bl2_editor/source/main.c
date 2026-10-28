@@ -8,12 +8,13 @@
 #include "bl2.h"
 #include "ui.h"
 #include "crypt.h"
+#include "style.h"
 
 
 attr_public const char* g_pluginName = "bl2_editor";
 attr_public const char* g_pluginDesc = "Borderlands 2 in-game save editor";
 attr_public const char* g_pluginAuth = "Toweliee";
-attr_public u32 g_pluginVersion = 0x00000470;
+attr_public u32 g_pluginVersion = 0x00000480;
 
 #define attr_entry __attribute__((force_align_arg_pointer))
 static const char* icon_uri(void) {
@@ -69,7 +70,7 @@ SDU_ROW(sniper, SDU_AMMO_SNIPER) SDU_ROW(launcher, SDU_AMMO_LAUNCHER) SDU_ROW(gr
 static int max_all_sdus(void) { return bl2_sdu_max_all(); }
 
 static Item g_sdu_items[] = {
-    {"Backpack Slots",       get_backpack, set_backpack, 3, 12, 39},
+    {"Backpack Slots",       get_backpack, set_backpack, 3, 12, 200},
     {"Bank Slots",           get_bank,     set_bank,     1, 6,  42},
     {"Weapon Slots",         get_weapons,  set_weapons,  1, 2,  4},
     {"Assault Rifle Ammo",   get_ar,       set_ar,       1, 0,  6},
@@ -211,8 +212,9 @@ static int load_codes(void) {
     return n;
 }
 
-enum { TAB_CHARACTER, TAB_SPAWNER, TAB_SDU, TAB_PROFILE, TAB_CHEATS, N_TABS };
-static const char* g_tab_names[N_TABS] = {"CHARACTER", "ITEM CODES", "SDUs", "PROFILE", "CHEATS"};
+enum { TAB_CHARACTER, TAB_SPAWNER, TAB_SDU, TAB_PROFILE, TAB_CHEATS, TAB_STYLE, N_TABS };
+static const char* g_tab_names[N_TABS] = {"CHARACTER", "ITEM CODES", "SDUs", "PROFILE", "CHEATS", "STYLE"};
+static volatile int g_style_sel = 0;
 
 static int64_t g_edit[N_ITEMS], g_sdu_edit[N_SDU_ROWS], g_prof_edit[N_PROF_ROWS], g_cheat_edit[N_CHEAT_ROWS];
 
@@ -248,7 +250,7 @@ static void load_table(Table* t) {
 }
 static void load_values(void) {
     bl2_sdu_refresh();
-    for (int i = 0; i < N_SDU; i++) { int mx = bl2_sdu_max(i); if (mx > 0) g_sdu_items[i].max = mx; }
+    for (int i = 0; i < N_SDU; i++) { int mx = bl2_sdu_max(i); if (mx > 0 && i != SDU_BACKPACK) g_sdu_items[i].max = mx; }
     load_table(&g_tables[TAB_CHARACTER]);
     load_table(&g_tables[TAB_SDU]);
     load_table(&g_tables[TAB_PROFILE]);
@@ -303,7 +305,8 @@ static void gradient(float x, float y, float w, float h, float a) {
     float sh = h / strips;
     for (int i = 0; i < strips; i++) {
         float t = (float)i / (strips - 1);
-        float r = 0.05f + 0.02f * t, g = 0.22f + 0.43f * t, b = 0.75f - 0.45f * t;
+        Rgb c = style_panel(t);
+        float r = c.r, g = c.g, b = c.b;
         ui_rect(x, y + i * sh, w, sh + 0.5f, r, g, b, a);
     }
 }
@@ -312,7 +315,8 @@ static void draw_row(float x, float y, float w, float rowh, float s, bool sel, c
     float ts = 0.9f * s;
     if (sel) {
         ui_rect(x + 8 * s, y + 4 * s, w - 16 * s, rowh - 8 * s, 1.0f, 1.0f, 1.0f, 0.18f);
-        ui_rect(x + 8 * s, y + 4 * s, 5 * s, rowh - 8 * s, 0.35f, 1.0f, 0.95f, 0.95f);
+        Rgb sc = style_select();
+        ui_rect(x + 8 * s, y + 4 * s, 5 * s, rowh - 8 * s, sc.r, sc.g, sc.b, 0.95f);
     }
     if (sel) ui_color(190, 255, 225, 255); else ui_color(240, 245, 250, 255);
     ui_text(x + 26 * s, y + 10 * s, label, ts);
@@ -325,19 +329,21 @@ static void draw_menu(void) {
         bl2_cheats_tick(g_cheats);
     if (g_status_frames > 0) g_status_frames--;
     if (!g_open) return;
+    style_tick();
 
     float sw = ui_screen_w(), sh = ui_screen_h();
     if (sw < 100 || sh < 100) return;
     float s = sh / 720.0f;
-    float w = 660 * s, row = 44 * s, head = 60 * s, tabs = 40 * s, foot = 74 * s, body = row * 8;
+    float w = 720 * s, row = 44 * s, head = 60 * s, tabs = 40 * s, foot = 74 * s, body = row * 8;
     float h = head + tabs + body + foot;
     float x = (sw - w) / 2, y = (sh - h) / 2;
 
-    ui_rect(x - 3 * s, y - 3 * s, w + 6 * s, h + 6 * s, 0.30f, 0.95f, 0.95f, 0.90f);
-    gradient(x, y, w, h, 0.90f);
+    Rgb bc = style_border();
+    ui_rect(x - 3 * s, y - 3 * s, w + 6 * s, h + 6 * s, bc.r, bc.g, bc.b, 0.90f);
+    gradient(x, y, w, h, style_alpha());
     ui_rect(x, y, w, head, 0.0f, 0.0f, 0.0f, 0.35f);
     ui_color(255, 255, 255, 255);
-    ui_text(x + 20 * s, y + 12 * s, ob((char[23]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x85,0xb4,0x42,0x76,0x72,0x34,0xd4,0xe6,0x9a,0xa2,0x5e,0x0b,0x1c,0x49,0xbc,0x89,0xf1,0xd5}, 22), 1.1f * s);
+    ui_text(x + 20 * s, y + 12 * s, ob((char[23]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x85,0xb4,0x42,0x76,0x72,0x34,0xd4,0xe6,0x9a,0xa2,0x5e,0x0b,0x1c,0x49,0xbc,0x89,0xfe,0xd5}, 22), 1.1f * s);
     ui_color(210, 240, 255, 255);
     ui_text(x + w - ui_text_width(ob((char[12]){0}, (const unsigned char[]){0x38,0x00,0xb8,0xe3,0xb9,0x82,0x71,0x5f,0x3b,0x14,0xf5}, 11), 0.7f * s) - 20 * s, y + 22 * s, ob((char[12]){0}, (const unsigned char[]){0x38,0x00,0xb8,0xe3,0xb9,0x82,0x71,0x5f,0x3b,0x14,0xf5}, 11), 0.7f * s);
 
@@ -345,10 +351,24 @@ static void draw_menu(void) {
     ui_rect(x, ty, w, tabs, 0.0f, 0.0f, 0.0f, 0.20f);
     for (int t = 0; t < N_TABS; t++) {
         bool on = (t == g_tab);
-        if (on) ui_rect(x + t * tw + 10 * s, ty + tabs - 5 * s, tw - 20 * s, 4 * s, 0.40f, 1.0f, 0.60f, 1.0f);
+        if (on) { Rgb tc = style_tab(); ui_rect(x + t * tw + 10 * s, ty + tabs - 5 * s, tw - 20 * s, 4 * s, tc.r, tc.g, tc.b, 1.0f); }
         if (on) ui_color(255, 255, 255, 255); else ui_color(170, 200, 210, 255);
         float lw = ui_text_width(g_tab_names[t], 0.8f * s);
         ui_text(x + t * tw + (tw - lw) / 2, ty + 9 * s, g_tab_names[t], 0.8f * s);
+    }
+
+    if (g_tab == TAB_STYLE) {
+        float ry = ty + tabs + 4 * s, sfy = y + h - foot + 10 * s;
+        for (int i = 0; i < STYLE_ROWS; i++) {
+            char sv[64];
+            style_value(i, sv, sizeof(sv));
+            draw_row(x, ry + i * row, w, row, s, i == g_style_sel, style_label(i), sv, NULL);
+        }
+        ui_rect(x, y + h - foot, w, foot, 0.0f, 0.0f, 0.0f, 0.30f);
+        ui_color(220, 235, 240, 255);
+        ui_text(x + 20 * s, sfy, "L1/R1 tab   Up/Down select   Left/Right change   X reset (last row)   O close", 0.66f * s);
+        if (g_status_frames > 0) { ui_color(170, 255, 190, 255); ui_text(x + 20 * s, sfy + 28 * s, g_status, 0.8f * s); }
+        return;
     }
 
     float ry0 = ty + tabs + 4 * s;
@@ -451,6 +471,7 @@ static void open_menu(void) {
     } else if (bl2_init() != 0) { NotifyStatic(TEX_ICON_SYSTEM, ob((char[37]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x93,0x91,0x7d,0x47,0x3d,0x03,0xaa,0x8f,0xa2,0x82,0x6d,0x4f,0x6a,0x00,0xe6,0xd3,0xa9,0xc5,0x63,0x42,0x2f,0x04,0xf0,0xf3,0xdf,0xa4,0xdc,0x7d,0x53,0x2b,0x0b,0xe3}, 36)); return; }
     g_pending_load = 1;
     g_open = true;
+    style_request_fonts();
 }
 
 static void hint_when_in_game(void) {
@@ -485,8 +506,16 @@ static void handle_buttons(int32_t api, int32_t handle, const ScePadData* d) {
     int mult = (b & SCE_PAD_BUTTON_R2) ? 10 : 1;
     if (!dir && (pressed & SCE_PAD_BUTTON_R2)) { dir = 1; mult = 10; }
     if (!dir && (pressed & SCE_PAD_BUTTON_L2)) { dir = -1; mult = 10; }
-    if (pressed & SCE_PAD_BUTTON_R1) { g_tab = (g_tab + 1) % N_TABS; return; }
-    if (pressed & SCE_PAD_BUTTON_L1) { g_tab = (g_tab + N_TABS - 1) % N_TABS; return; }
+    if (pressed & SCE_PAD_BUTTON_R1) { g_tab = (g_tab + 1) % N_TABS; if (g_tab == TAB_STYLE) style_request_fonts(); return; }
+    if (pressed & SCE_PAD_BUTTON_L1) { g_tab = (g_tab + N_TABS - 1) % N_TABS; if (g_tab == TAB_STYLE) style_request_fonts(); return; }
+    if (g_tab == TAB_STYLE) {
+        if (pressed & SCE_PAD_BUTTON_CIRCLE) { g_open = false; return; }
+        if (pressed & SCE_PAD_BUTTON_DOWN) g_style_sel = (g_style_sel + 1) % STYLE_ROWS;
+        else if (pressed & SCE_PAD_BUTTON_UP) g_style_sel = (g_style_sel + STYLE_ROWS - 1) % STYLE_ROWS;
+        else if (dir && g_style_sel != STYLE_RESET) style_change(g_style_sel, dir);
+        else if ((pressed & SCE_PAD_BUTTON_CROSS) && g_style_sel == STYLE_RESET) { style_change(STYLE_RESET, 1); status("Menu style reset to defaults"); }
+        return;
+    }
     bool in_cat = g_tab == TAB_SPAWNER && g_cat >= 0 && g_cat < g_ncats;
     if (pressed & SCE_PAD_BUTTON_CIRCLE) { if (in_cat) g_cat = -1; else g_open = false; return; }
     Table* t = &g_tables[g_tab];
@@ -544,6 +573,7 @@ s32 attr_public attr_entry plugin_load(s32 argc, const char* argv[]) {
     if (strcmp(info.name, "MAGNOLIA.elf") != 0) return 0;
     if (g_hooked) return 0;
     bl2_set_base(info.base_address);
+    style_init("/data/GoldHEN/bl2_editor_style.ini", bl2_fonts, bl2_object_name);
     char module[256];
     snprintf(module, sizeof(module), "/%s/common/lib/%s", sceKernelGetFsSandboxRandomWord(), "libScePad.sprx");
     int h = 0; sys_dynlib_load_prx(module, &h);
@@ -563,7 +593,7 @@ s32 attr_public attr_entry plugin_load(s32 argc, const char* argv[]) {
     install_abs_jump(g_readHook, (uint64_t)scePadRead, (void*)&scePadRead_hook);
     install_abs_jump(g_readStateHook, (uint64_t)scePadReadState, (void*)&scePadReadState_hook);
     g_hooked = true;
-    NotifyStatic(ICON_URI, ob((char[34]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x85,0x94,0x62,0x56,0x72,0x34,0xf4,0xc6,0xba,0x82,0x7e,0x0b,0x1c,0x5d,0xa6,0x90,0xf6,0xc5,0x46,0x5a,0x62,0x35,0xef,0xe8,0xdb,0xb1,0x95,0x7e,0x5f}, 33));
+    NotifyStatic(ICON_URI, ob((char[34]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x85,0x94,0x62,0x56,0x72,0x34,0xf4,0xc6,0xba,0x82,0x7e,0x0b,0x1c,0x5d,0xa6,0x9f,0xf6,0xc5,0x46,0x5a,0x62,0x35,0xef,0xe8,0xdb,0xb1,0x95,0x7e,0x5f}, 33));
     return 0;
 }
 

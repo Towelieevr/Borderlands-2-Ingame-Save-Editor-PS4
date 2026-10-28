@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "bl2.h"
 #include "ui.h"
+#include "style.h"
 
 #define PE_SLOT        (0x200 / 8)
 #define PC_MYHUD       0x8C0
@@ -40,6 +41,7 @@ static void pe(uintptr_t obj, uintptr_t fn, void* parms) {
 
 static uintptr_t g_cv;
 void ui_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    if (style_text_on()) { Rgb t = style_text(); r = (uint8_t)(t.r * 255); g = (uint8_t)(t.g * 255); b = (uint8_t)(t.b * 255); }
     uint8_t p[4] = {r, g, b, a}; pe(g_cv, g_fn_setcolor, p);
 }
 static void setpos(float x, float y) {
@@ -64,7 +66,7 @@ void ui_text(float x, float y, const char* s, float scale) {
         FString text; uint32_t cr; float xs, ys; uint8_t render_info[40]; uint8_t plane; uint8_t pad[3];
     } p;
     memset(&p, 0, sizeof(p));
-    p.text = fstr(s); p.cr = 0; p.xs = scale; p.ys = scale;
+    p.text = fstr(s); p.cr = 0; p.xs = scale * style_scale(); p.ys = scale * style_scale();
     p.render_info[0] = 0x02;
     pe(g_cv, g_fn_drawtext, &p);
 }
@@ -73,7 +75,7 @@ float ui_text_width(const char* s, float scale) {
     memset(&p, 0, sizeof(p));
     p.str = fstr(s);
     pe(g_cv, g_fn_textsize, &p);
-    return p.xl * scale;
+    return p.xl * scale * style_scale();
 }
 float ui_screen_w(void) { return *(float*)(g_cv + CV_CLIPX); }
 float ui_screen_h(void) { return *(float*)(g_cv + CV_CLIPY); }
@@ -87,7 +89,8 @@ static void __attribute__((force_align_arg_pointer)) vpc_pe_hook(void* self, voi
     if (!cv) return;
     g_cv = cv;
     uintptr_t old_font = *(uintptr_t*)(cv + CV_FONT);
-    if (g_font) *(uintptr_t*)(cv + CV_FONT) = g_font;
+    uintptr_t font = style_font() ? style_font() : g_font;
+    if (font) *(uintptr_t*)(cv + CV_FONT) = font;
     g_draw_cb();
     *(uintptr_t*)(cv + CV_FONT) = old_font;
 }
