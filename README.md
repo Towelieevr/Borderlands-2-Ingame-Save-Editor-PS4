@@ -7,9 +7,9 @@ Open it in game, edit your character, spawn items from codes, max out SDUs, turn
 |---|---|
 | **Game** | Borderlands 2 – The Handsome Collection, **CUSA01401 v1.10** |
 | **Tested on** | PS4 firmware **13.02** with GoldHEN |
-| **Latest version** | [v5.30](https://github.com/Towelieevr/Borderlands-2-Save-Editor-PS4/releases/latest) |
+| **Latest version** | [v5.30](https://github.com/Towelieevr/Borderlands-2-Ingame-Save-Editor-PS4/releases/latest) |
 
-> Back up your saves before editing (Apollo Save Tool or the PS4's own save backup). Found a problem? Please report it on the [Issues](https://github.com/Towelieevr/Borderlands-2-Save-Editor-PS4/issues) page.
+> Back up your saves before editing (Apollo Save Tool or the PS4's own save backup). Found a problem? Please report it on the [Issues](https://github.com/Towelieevr/Borderlands-2-Ingame-Save-Editor-PS4/issues) page.
 
 ---
 
@@ -36,7 +36,7 @@ Open it in game, edit your character, spawn items from codes, max out SDUs, turn
 
 **Manual install:**
 
-1. Download the zip from [Releases](https://github.com/Towelieevr/Borderlands-2-Save-Editor-PS4/releases/latest).
+1. Download the zip from [Releases](https://github.com/Towelieevr/Borderlands-2-Ingame-Save-Editor-PS4/releases/latest).
 2. Copy the `GoldHEN` folder from the zip to `/data/GoldHEN/` on your PS4 over FTP:
    - `bl2_editor.prx` goes in `/data/GoldHEN/plugins/`
    - `bl2_editor_icon.png` and `bl2_codes.txt` go in `/data/GoldHEN/`
