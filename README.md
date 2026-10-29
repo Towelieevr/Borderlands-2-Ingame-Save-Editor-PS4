@@ -5,7 +5,7 @@ Open it in game, edit your character, spawn items from codes, max out SDUs, turn
 
 | | |
 |---|---|
-| **Game** | Borderlands 2 – The Handsome Collection, **CUSA01401 v1.10** |
+| **Game** | Borderlands 2 – The Handsome Collection, **CUSA01401 v1.10** | Confirmed Test as of 10/29/2026 EUR Title ID CUSA01446 v1.10 does work tested by Eim
 | **Tested on** | PS4 firmware **13.02** with GoldHEN |
 | **Latest version** | [v5.50](https://github.com/Towelieevr/Borderlands-2-Ingame-Save-Editor-PS4/releases/latest) |
 
