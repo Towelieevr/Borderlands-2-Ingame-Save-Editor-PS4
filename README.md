@@ -130,6 +130,9 @@ Load into gameplay. A pop-up tells you the editor is ready:
 
 A PS4 port of **[mopioid's Loot Randomizer](https://github.com/mopioid/Borderlands-Loot-Randomizer)** for the PC version of Borderlands 2, used with mopioid's permission. Unique enemies and missions each drop an item picked by your seed. The same seed gives the same items as the PC mod.
 
+<p align="center"><img src="images/tab-rando-1.png" alt="Rando tab: randomizer settings" width="640"></p>
+<p align="center"><em><b>Rando tab:</b> randomizer on/off, your seed, new seed, reload, location/item count, guaranteed drops and Every enemy drops.</em></p>
+
 - **Randomizer:** turn it on or off. The first time, it makes a new seed for you.
 - **Seed** / **New random seed:** shows your seed, or rolls a new one. Seeds work like PC seeds, so you can share them.
 - **Reload bl2_rando.ini:** loads a seed you typed into `/data/GoldHEN/bl2_rando.ini` (for example `seed=xxxxx-xxxxx-xxxxx`).
@@ -137,6 +140,20 @@ A PS4 port of **[mopioid's Loot Randomizer](https://github.com/mopioid/Borderlan
 - **Every enemy drops:** Off / 5% / 10% / 25% / 50% / 100%. Every enemy, bosses included, gets that chance to also drop a random item from the randomizer's pools. This isn't in the PC mod.
 - **Content options** (DLCs, mission lengths, enemy types and so on) apply to the next new seed.
 - Open the editor once after loading in to start the randomizer. Missions give their item straight to your backpack.
+
+The content options scroll below the settings:
+
+<p align="center"><img src="images/tab-rando-2.png" alt="Rando tab: DLC options" width="640"></p>
+<p align="center"><em><b>DLCs and headhunter packs:</b> Pirate's Booty, Campaign of Carnage, Hammerlock's Hunt, Dragon Keep, Fight for Sanctuary, Bloody Harvest, Wattle Gobbler and Mercenary Day.</em></p>
+
+<p align="center"><img src="images/tab-rando-3.png" alt="Rando tab: more DLC and mission options" width="640"></p>
+<p align="center"><em><b>More DLC and missions:</b> Wedding Day Massacre, Son of Crawmerax, UVHM Pack, Digistruct Peak, and short, long, very long and vehicle missions.</em></p>
+
+<p align="center"><img src="images/tab-rando-4.png" alt="Rando tab: enemy options" width="640"></p>
+<p align="center"><em><b>Enemy types:</b> slaughter missions, unique, slow, rare and very rare enemies, mob farms, evolved and Digistruct enemies.</em></p>
+
+<p align="center"><img src="images/tab-rando-5.png" alt="Rando tab: other options" width="640"></p>
+<p align="center"><em><b>Everything else:</b> raids, mission locations, special vendors, freebies, miscellaneous, duplicate items and allow hints.</em></p>
 
 Not ported yet: hints, "other" locations, a few non-Pawn enemies, and repeatable missions.
 
