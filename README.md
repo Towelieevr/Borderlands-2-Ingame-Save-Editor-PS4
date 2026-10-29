@@ -7,7 +7,7 @@ Open it in game, edit your character, spawn items from codes, max out SDUs, turn
 |---|---|
 | **Game** | Borderlands 2 – The Handsome Collection, **CUSA01401 v1.10** |
 | **Tested on** | PS4 firmware **13.02** with GoldHEN |
-| **Latest version** | [v5.30](https://github.com/Towelieevr/Borderlands-2-Ingame-Save-Editor-PS4/releases/latest) |
+| **Latest version** | [v5.40](https://github.com/Towelieevr/Borderlands-2-Ingame-Save-Editor-PS4/releases/latest) |
 
 > Back up your saves before editing (Apollo Save Tool or the PS4's own save backup). Found a problem? Please report it on the [Issues](https://github.com/Towelieevr/Borderlands-2-Ingame-Save-Editor-PS4/issues) page.
 
@@ -137,7 +137,11 @@ A PS4 port of **[mopioid's Loot Randomizer](https://github.com/mopioid/Borderlan
 - **Seed** / **New random seed:** shows your seed, or rolls a new one. Seeds work like PC seeds, so you can share them.
 - **Reload bl2_rando.ini:** loads a seed you typed into `/data/GoldHEN/bl2_rando.ini` (for example `seed=xxxxx-xxxxx-xxxxx`).
 - **Guaranteed drops (test):** every drop roll succeeds. This is for testing and isn't in the PC mod.
-- **Every enemy drops:** Off / 5% / 10% / 25% / 50% / 100%. Every enemy, bosses included, gets that chance to also drop a random item from the randomizer's pools. This isn't in the PC mod.
+- **Every enemy drops:** Off / 5% / 10% / 25% / 50% / 100%. Every enemy, bosses included, gets that chance to also drop a random item. This isn't in the PC mod. The random item comes from the randomizer's pools **plus about 200 extra items** found in the game:
+  - purple and E-tech guns for every manufacturer, gemstone guns, and Seraph guns and gear;
+  - blue and purple shields, grenade mods, relics and class mods (class mods only for your class).
+
+  After the first extra drop, the row shows how many extras were found (for example `< 100% > +214 extra`). The extras only show up in these random drops, so seeds still match the PC mod.
 - **Content options** (DLCs, mission lengths, enemy types and so on) apply to the next new seed.
 - Open the editor once after loading in to start the randomizer. Missions give their item straight to your backpack.
 

@@ -45,6 +45,9 @@ static const int k_every[] = {0, 5, 10, 25, 50, 100};
 static uint16_t g_loc_item[RANDO_NLOCS];
 static uintptr_t g_cache[RANDO_NITEMS];
 static char g_msg[96];
+#define MAX_EXTRA 800
+static uintptr_t g_extra[MAX_EXTRA];
+static int g_nextra = -1;
 
 static uint32_t roll(void) {
     r_rng ^= r_rng << 13; r_rng ^= r_rng >> 17; r_rng ^= r_rng << 5;
@@ -53,8 +56,9 @@ static uint32_t roll(void) {
 
 static void sync_player(void) {
     uintptr_t pc = bl2_live_pc();
-    if (pc && pc != bl2_player_controller()) bl2_init();
+        if (pc && pc != bl2_player_controller()) { bl2_init(); g_nextra = -1; }
 }
+
 
 static int apply_seed(const char* str) {
     uint8_t d[9];
@@ -188,11 +192,54 @@ static int inject_ok(const RandoPawn* p, int tt) {
     return 1;
 }
 
-static int random_pool(void) {
+static int has(const char* s, const char* k) { return strstr(s, k) != NULL; }
+
+static int extra_ok(int kind, const char* nm) {
+    if (!nm[0] || has(nm, "Default__") || has(nm, "NODROP") || has(nm, "Test") || has(nm, "Enemy")) return 0;
+    if (kind == 0) {
+        static const char* const k[] = {"_4_VeryRare", "_5_Alien", "Seraph", "_4_Quartz", "_4_Emerald", "_4_Garnet", "_4_Citrine",
+                                        "_4_CubicZerconia", "_4_Aquamarine", "_4_Diamond", "_4_Rock"};
+        for (int i = 0; i < (int)(sizeof(k) / sizeof(k[0])); i++) if (has(nm, k[i])) return 1;
+        return 0;
+    }
+    if (kind == 2) return has(nm, "_03_Rare") || has(nm, "_04_VeryRare");
+    if (has(nm, "Seraph")) return 1;
+    if (has(nm, "Shield")) return has(nm, "_03_Rare") || has(nm, "_04_VeryRare");
+    if (!strncmp(nm, "GM_", 3)) return has(nm, "_3_Rare") || has(nm, "_4_VeryRare");
+    if (!strncmp(nm, "A_", 2)) return has(nm, "_Rare") || has(nm, "_VeryRare");
+    return 0;
+}
+
+static void scan_extras(void) {
+    static const char* const cls[3] = {"WeaponBalanceDefinition", "InventoryBalanceDefinition", "ClassModBalanceDefinition"};
+    static uintptr_t all[4096];
+    g_nextra = 0;
+    for (int c = 0; c < 3; c++) {
+        int n = bl2_find_all(cls[c], all, 4096);
+        for (int i = 0; i < n && g_nextra < MAX_EXTRA; i++)
+            if (extra_ok(c, bl2_object_name(all[i]))) g_extra[g_nextra++] = all[i];
+    }
+}
+
+static int class_ok(uintptr_t bal) {
+    static const char* const k[6] = {"Assassin", "Mercenary", "Siren", "Soldier", "Psycho", "Mechromancer"};
+    const char* nm = bl2_object_name(bal);
+    if (!has(nm, "ClassMod")) return 1;
+    int chr = player_char();
+    return chr < 0 || has(nm, k[chr]);
+}
+
+static void drop_random(uintptr_t pawn, int n) {
     static uint16_t ok[RANDO_NPOOLS];
-    int n = 0;
-    for (int i = 0; i < RANDO_NPOOLS; i++) if (k_rando_pools[i].tags & g_tags) ok[n++] = (uint16_t)i;
-    return n ? ok[roll() % n] : -1;
+    if (g_nextra < 0) scan_extras();
+    int np = 0;
+    for (int i = 0; i < RANDO_NPOOLS; i++) if (k_rando_pools[i].tags & g_tags) ok[np++] = (uint16_t)i;
+    if (np + g_nextra <= 0) return;
+    for (int t = 0; t < 8; t++) {
+        uint32_t r = roll() % (uint32_t)(np + g_nextra);
+        if ((int)r < np) { drop_pool(pawn, ok[r], n, 0); return; }
+        if (class_ok(g_extra[r - np])) { spawn_drop(pawn, g_extra[r - np], n, 0); return; }
+    }
 }
 
 static void on_death(uintptr_t pawn) {
@@ -219,8 +266,8 @@ static void on_death(uintptr_t pawn) {
                 if (g_guaranteed || (int)(roll() % 100) < L->rar[r]) drop_pool(pawn, it, n++, 0);
         }
     }
-    int p = extra ? random_pool() : -1;
-    if (p >= 0) drop_pool(pawn, p, n, 0);
+        if (extra) drop_random(pawn, n);
+
 }
 
 static void strip_reward(uintptr_t def) {
@@ -349,7 +396,7 @@ void rando_value(int row, char* out, int n) {
     case 2: case 3: snprintf(out, n, "press X"); return;
     case 4: if (g_have_seed) snprintf(out, n, "%d / %d", g_nloc, g_nitem); else snprintf(out, n, "-"); return;
     case 5: snprintf(out, n, "<  %s  >", g_guaranteed ? "ON" : "OFF"); return;
-    case 6: if (g_every) snprintf(out, n, "<  %d%%  >", g_every); else snprintf(out, n, "<  OFF  >"); return;
+    case 6: if (g_every) snprintf(out, n, g_nextra > 0 ? "<  %d%%  >  +%d extra" : "<  %d%%  >", g_every, g_nextra); else snprintf(out, n, "<  OFF  >"); return;
     }
     int o = row - FIXED_ROWS;
     if (o >= 0 && o < RANDO_NOPTS) snprintf(out, n, "<  %s  >  new seeds", (g_newtags & k_rando_opts[o].bit) ? "ON" : "OFF");

@@ -124,6 +124,18 @@ int bl2_fonts(uintptr_t* out, int max) {
     }
     return n;
 }
+int bl2_find_all(const char* cls, uintptr_t* out, int max) {
+    int32_t nc = name_index(cls);
+    if (nc < 0) return 0;
+    TArray* g = gobjects();
+    int n = 0;
+    for (int32_t i = 0; i < g->count && n < max; i++) {
+        uintptr_t o = ((uintptr_t*)g->data)[i];
+        if (o && obj_class(o) && obj_name(obj_class(o)) == nc) out[n++] = o;
+    }
+    return n;
+}
+
 const char* bl2_object_name(uintptr_t o) { return o ? name_str(obj_name(o)) : ""; }
 int32_t bl2_prop_offset(const char* cls, const char* prop) { return prop_offset(name_index(cls), name_index(prop)); }
 uintptr_t bl2_find_path(const char* path) {
