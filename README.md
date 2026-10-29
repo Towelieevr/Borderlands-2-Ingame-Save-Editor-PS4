@@ -7,7 +7,7 @@ Open it in game, edit your character, spawn items from codes, max out SDUs, turn
 |---|---|
 | **Game** | Borderlands 2 – The Handsome Collection, **CUSA01401 v1.10** |
 | **Tested on** | PS4 firmware **13.02** with GoldHEN |
-| **Latest version** | [v5.40](https://github.com/Towelieevr/Borderlands-2-Ingame-Save-Editor-PS4/releases/latest) |
+| **Latest version** | [v5.50](https://github.com/Towelieevr/Borderlands-2-Ingame-Save-Editor-PS4/releases/latest) |
 
 > Back up your saves before editing (Apollo Save Tool or the PS4's own save backup). Found a problem? Please report it on the [Issues](https://github.com/Towelieevr/Borderlands-2-Ingame-Save-Editor-PS4/issues) page.
 
@@ -82,6 +82,7 @@ Load into gameplay. A pop-up tells you the editor is ready:
 <p align="center"><em><b>Character tab:</b> money, Eridium, skill points, experience, and Unlock All Cosmetics.</em></p>
 
 - **Money**, **Eridium**, **Skill Points** and **Experience (XP)**: dial in any value and press **X** to apply.
+- **Seraph Crystals** and **Torgue Tokens**: up to the game's cap of 999 each.
 - **Unlock All Cosmetics**: unlocks every head and skin, saved to your profile.
 
 ### Item Codes

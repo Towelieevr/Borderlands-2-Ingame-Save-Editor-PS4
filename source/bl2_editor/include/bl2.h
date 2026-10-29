@@ -30,6 +30,8 @@ uintptr_t bl2_live_pc(void);
 
 int bl2_get_money(int64_t* out);          int bl2_set_money(int64_t v);
 int bl2_get_eridium(int64_t* out);        int bl2_set_eridium(int64_t v);
+int bl2_get_seraph(int64_t* out);         int bl2_set_seraph(int64_t v);
+int bl2_get_torgue(int64_t* out);         int bl2_set_torgue(int64_t v);
 int bl2_get_skill_points(int64_t* out);   int bl2_set_skill_points(int64_t v);
 int bl2_get_badass_tokens(int64_t* out);  int bl2_set_badass_tokens(int64_t v);
 int bl2_get_xp(int64_t* out);             int bl2_set_xp(int64_t v);

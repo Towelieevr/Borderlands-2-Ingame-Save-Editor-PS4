@@ -15,7 +15,7 @@
 #define CURRENCY_STRIDE 20
 #define CURRENCY_VALUE  0x0C
 #define BACKPACK_LIMIT 200
-enum { CUR_CREDITS = 0, CUR_ERIDIUM = 1 };
+enum { CUR_CREDITS = 0, CUR_ERIDIUM = 1, CUR_SERAPH = 2, CUR_TORGUE = 4 };
 
 typedef struct { uintptr_t data; int32_t count, max; } TArray;
 
@@ -449,6 +449,10 @@ int bl2_get_money(int64_t* o)          { return get_currency(CUR_CREDITS, o); }
 int bl2_set_money(int64_t v)           { return set_currency(CUR_CREDITS, v); }
 int bl2_get_eridium(int64_t* o)        { return get_currency(CUR_ERIDIUM, o); }
 int bl2_set_eridium(int64_t v)         { return set_currency(CUR_ERIDIUM, v); }
+int bl2_get_seraph(int64_t* o)         { return get_currency(CUR_SERAPH, o); }
+int bl2_set_seraph(int64_t v)          { return set_currency(CUR_SERAPH, v); }
+int bl2_get_torgue(int64_t* o)         { return get_currency(CUR_TORGUE, o); }
+int bl2_set_torgue(int64_t v)          { return set_currency(CUR_TORGUE, v); }
 int bl2_get_skill_points(int64_t* o)   { return get_i32(g_pri, g_off_skill, o); }
 int bl2_set_skill_points(int64_t v)    { return set_i32(g_pri, g_off_skill, v); }
 int bl2_get_badass_tokens(int64_t* o)  { return get_i32(g_pc, g_off_tokens, o); }

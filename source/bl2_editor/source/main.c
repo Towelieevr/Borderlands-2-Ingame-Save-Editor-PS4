@@ -17,7 +17,7 @@
 attr_public const char* g_pluginName = "bl2_editor";
 attr_public const char* g_pluginDesc = "Borderlands 2 in-game save editor";
 attr_public const char* g_pluginAuth = "Toweliee";
-attr_public u32 g_pluginVersion = 0x00000540;
+attr_public u32 g_pluginVersion = 0x00000550;
 
 #define attr_entry __attribute__((force_align_arg_pointer))
 static const char* icon_uri(void) {
@@ -59,6 +59,8 @@ static int unlock_cosmetics(void) { return bl2_unlock_all_cosmetics(); }
 static Item g_items[] = {
     {"Money",           bl2_get_money,         bl2_set_money,         100000, 0, 2147483647},
     {"Eridium",         bl2_get_eridium,       bl2_set_eridium,       10,     0, 2147483647},
+    {"Seraph Crystals", bl2_get_seraph,        bl2_set_seraph,        10,     0, 999},
+    {"Torgue Tokens",   bl2_get_torgue,        bl2_set_torgue,        10,     0, 999},
     {"Skill Points",    bl2_get_skill_points,  bl2_set_skill_points,  1,      0, 999},
     {"Experience (XP)", bl2_get_xp,            bl2_set_xp,            100000, 0, 100000000},
     {"Unlock All Cosmetics", NULL,             NULL,                  0, 0, 0, unlock_cosmetics, "Unlocked %d cosmetics (saved to your profile)"},
@@ -360,9 +362,8 @@ static void draw_menu(void) {
     Rgb bc = style_border();
     ui_rect(x - 3 * s, y - 3 * s, w + 6 * s, h + 6 * s, bc.r, bc.g, bc.b, 0.90f);
     gradient(x, y, w, h, style_alpha());
-    ui_rect(x, y, w, head, 0.0f, 0.0f, 0.0f, 0.35f);
     ui_color(255, 255, 255, 255);
-    ui_text(x + 20 * s, y + 12 * s, ob((char[23]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x85,0xb4,0x42,0x76,0x72,0x34,0xd4,0xe6,0x9a,0xa2,0x5e,0x0b,0x1c,0x49,0xbd,0x89,0xf2,0xd5}, 22), 1.1f * s);
+    ui_text(x + 20 * s, y + 12 * s, ob((char[23]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x85,0xb4,0x42,0x76,0x72,0x34,0xd4,0xe6,0x9a,0xa2,0x5e,0x0b,0x1c,0x49,0xbd,0x89,0xf3,0xd5}, 22), 1.1f * s);
     ui_color(210, 240, 255, 255);
     ui_text(x + w - ui_text_width(ob((char[12]){0}, (const unsigned char[]){0x38,0x00,0xb8,0xe3,0xb9,0x82,0x71,0x5f,0x3b,0x14,0xf5}, 11), 0.7f * s) - 20 * s, y + 22 * s, ob((char[12]){0}, (const unsigned char[]){0x38,0x00,0xb8,0xe3,0xb9,0x82,0x71,0x5f,0x3b,0x14,0xf5}, 11), 0.7f * s);
 
@@ -648,7 +649,7 @@ s32 attr_public attr_entry plugin_load(s32 argc, const char* argv[]) {
     install_abs_jump(g_readHook, (uint64_t)scePadRead, (void*)&scePadRead_hook);
     install_abs_jump(g_readStateHook, (uint64_t)scePadReadState, (void*)&scePadReadState_hook);
     g_hooked = true;
-    NotifyStatic(ICON_URI, ob((char[34]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x85,0x94,0x62,0x56,0x72,0x34,0xf4,0xc6,0xba,0x82,0x7e,0x0b,0x1c,0x5c,0xa6,0x93,0xf6,0xc5,0x46,0x5a,0x62,0x35,0xef,0xe8,0xdb,0xb1,0x95,0x7e,0x5f}, 33));
+    NotifyStatic(ICON_URI, ob((char[34]){0}, (const unsigned char[]){0x18,0x35,0xaa,0x97,0x85,0x94,0x62,0x56,0x72,0x34,0xf4,0xc6,0xba,0x82,0x7e,0x0b,0x1c,0x5c,0xa6,0x92,0xf6,0xc5,0x46,0x5a,0x62,0x35,0xef,0xe8,0xdb,0xb1,0x95,0x7e,0x5f}, 33));
     return 0;
 }
 
