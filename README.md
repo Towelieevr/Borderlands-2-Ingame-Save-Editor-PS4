@@ -32,10 +32,6 @@ Open it in game, edit your character, spawn items from codes, max out SDUs, turn
 
 ## Download & install
 
-**Easiest:** install it with the [Toweliee's Save Editors](https://github.com/Towelieevr/Toweliee-Save-Editors) app, which also checks for updates online.
-
-**Manual install:**
-
 1. Download the zip from [Releases](https://github.com/Towelieevr/Borderlands-2-Ingame-Save-Editor-PS4/releases/latest).
 2. Copy the `GoldHEN` folder from the zip to `/data/GoldHEN/` on your PS4 over FTP:
    - `bl2_editor.prx` goes in `/data/GoldHEN/plugins/`
